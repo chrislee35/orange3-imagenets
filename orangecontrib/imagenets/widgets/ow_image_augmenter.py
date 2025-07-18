@@ -3,6 +3,8 @@ from Orange.widgets.widget import Input, Output
 from Orange.data import Table, Domain, StringVariable, ContinuousVariable
 from AnyQt.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QSpinBox, QCheckBox, QPushButton
 from AnyQt.QtCore import Qt
+from AnyQt.QtGui import QPixmap
+from PIL import Image
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img
 import os
 import uuid
@@ -82,7 +84,16 @@ class OWImageAugmenter(widget.OWWidget):
         self.controlArea.layout().setAlignment(Qt.AlignTop)
 
     def layout_mainArea(self):
-        pass
+        self.mainArea.layout().addWidget(QLabel("Before"))
+        self.image_label = QLabel("No preview available")
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setMinimumSize(200, 200)
+        self.mainArea.layout().addWidget(self.image_label)
+        self.mainArea.layout().addWidget(QLabel("After"))
+        self.aug_image_label = QLabel("No preview available")
+        self.aug_image_label.setAlignment(Qt.AlignCenter)
+        self.aug_image_label.setMinimumSize(200, 200)
+        self.mainArea.layout().addWidget(self.aug_image_label)
 
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder to Save Augmented Images")
@@ -95,10 +106,12 @@ class OWImageAugmenter(widget.OWWidget):
 
     def set_flag(self, attr, val):
         setattr(self, attr, val)
+        self.show_preview()
 
     @Inputs.images
     def set_data(self, table):
         self.image_table = table
+        self.show_preview()
 
     def generate_augmentations(self):
         if not self.image_table or not self.save_folder:
@@ -172,6 +185,57 @@ class OWImageAugmenter(widget.OWWidget):
         new_table = Table.from_numpy(domain, X=np.empty((len(new_rows), 0)), Y=np.array(new_y), metas=metas_array)
         self.Outputs.augmented_images.send(new_table)
         self.progressBarFinished()
+
+    def show_preview(self):
+        if not self.image_table:
+            self.image_label.setText("No data")
+            return
+
+        domain = self.image_table.domain
+        image_col = None
+        origin = None
+
+        for var in domain.metas:
+            if var.attributes.get("type") == "image":
+                image_col = var
+                origin = var.attributes.get("origin")
+                break
+
+        if not image_col or not origin:
+            self.image_label.setText("No image found")
+            return
+
+        try:
+            # Get the first image path
+            path = self.image_table[0].metas[domain.metas.index(image_col)]
+            full_path = os.path.join(origin, path)
+            image = Image.open(full_path)
+            image.thumbnail((256, 256))
+
+            aug_image = self.augment_image(image)
+            image.save("/tmp/__preview.png")  # Temporary path to convert to pixmap
+            aug_image.save('/tmp/__aug_preview.png')
+            pixmap = QPixmap("/tmp/__preview.png")
+            aug_pixmap = QPixmap("/tmp/__aug_preview.png")
+            self.image_label.setPixmap(pixmap)
+            self.aug_image_label.setPixmap(aug_pixmap)
+        except Exception as e:
+            self.image_label.setText(f"Error loading preview:\n{str(e)}")
+
+    def augment_image(self, image: Image) -> Image:
+        datagen = ImageDataGenerator(
+            zoom_range=0.2 if self.zoom else 0.0,
+            horizontal_flip=self.flip,
+            rotation_range=30 if self.rotate else 0,
+            shear_range=0.2 if self.shear else 0.0,
+            brightness_range=(0.7, 1.3) if self.brightness else None,
+            fill_mode='nearest')
+        x = img_to_array(image)
+        x = x.reshape((1,) + x.shape)
+        gen = datagen.flow(x, batch_size=1)
+        batch = next(gen)
+        aug_img = array_to_img(batch[0])
+        return aug_img
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
