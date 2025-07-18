@@ -33,6 +33,10 @@ class OWImageAugmenter(widget.OWWidget):
         super().__init__()
 
         self.image_table = None
+        self.layout_controlArea()
+        self.layout_mainArea()
+
+    def layout_controlArea(self):
 
         # UI
         self.save_folder_button = gui.button(self.controlArea, self, "Select Save Folder", callback=self.select_folder)
@@ -75,6 +79,10 @@ class OWImageAugmenter(widget.OWWidget):
         self.run_button = QPushButton("Generate Augmented Images")
         self.run_button.clicked.connect(self.generate_augmentations)
         self.controlArea.layout().addWidget(self.run_button)
+        self.controlArea.layout().setAlignment(Qt.AlignTop)
+
+    def layout_mainArea(self):
+        pass
 
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder to Save Augmented Images")
