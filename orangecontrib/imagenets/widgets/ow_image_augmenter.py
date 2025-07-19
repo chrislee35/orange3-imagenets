@@ -1,15 +1,16 @@
 from Orange.widgets import widget, settings, gui
 from Orange.widgets.widget import Input, Output
-from Orange.data import Table, Domain, StringVariable, ContinuousVariable
-from AnyQt.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QSpinBox, QCheckBox, QPushButton
+from Orange.data import Table
+from AnyQt.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QSpinBox, QCheckBox, QPushButton, QGroupBox
 from AnyQt.QtCore import Qt
-from AnyQt.QtGui import QPixmap
-from PIL import Image
+from AnyQt.QtGui import QPixmap, QFont
+from PIL import Image, ImageFilter
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img
 import os
 import uuid
 import numpy as np
-import shutil
+import random
+
 
 class OWImageAugmenter(widget.OWWidget):
     name = "Image Augmenter"
@@ -30,6 +31,9 @@ class OWImageAugmenter(widget.OWWidget):
     rotate = settings.Setting(True)
     shear = settings.Setting(False)
     brightness = settings.Setting(False)
+    blur = settings.Setting(False)
+    gaussian_noise = settings.Setting(False)
+
 
     def __init__(self):
         super().__init__()
@@ -78,22 +82,56 @@ class OWImageAugmenter(widget.OWWidget):
         self.brightness_cb.stateChanged.connect(lambda: self.set_flag('brightness', self.brightness_cb.isChecked()))
         self.controlArea.layout().addWidget(self.brightness_cb)
 
+        self.blur_cb = QCheckBox("Blur")
+        self.blur_cb.setChecked(self.blur)
+        self.blur_cb.stateChanged.connect(lambda: self.set_flag('blur', self.blur_cb.isChecked()))
+        self.controlArea.layout().addWidget(self.blur_cb)
+
+        self.gauss_cb = QCheckBox("Gaussian Noise")
+        self.gauss_cb.setChecked(self.gaussian_noise)
+        self.gauss_cb.stateChanged.connect(lambda: self.set_flag('gaussian_noise', self.gauss_cb.isChecked()))
+        self.controlArea.layout().addWidget(self.gauss_cb)
+
+
         self.run_button = QPushButton("Generate Augmented Images")
         self.run_button.clicked.connect(self.generate_augmentations)
         self.controlArea.layout().addWidget(self.run_button)
         self.controlArea.layout().setAlignment(Qt.AlignTop)
 
     def layout_mainArea(self):
-        self.mainArea.layout().addWidget(QLabel("Before"))
+        # Font for titles
+        title_font = QFont()
+        title_font.setBold(True)
+        title_font.setPointSize(12)
+
+        # ---- Before Group ----
+        before_group = QGroupBox("Before")
+        before_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid gray; margin-top: 10px; }")
+        before_layout = QVBoxLayout()
+
         self.image_label = QLabel("No preview available")
         self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setMinimumSize(200, 200)
-        self.mainArea.layout().addWidget(self.image_label)
-        self.mainArea.layout().addWidget(QLabel("After"))
+        self.image_label.setMinimumSize(256, 256)
+        before_layout.addWidget(self.image_label)
+
+        before_group.setLayout(before_layout)
+
+        # ---- After Group ----
+        after_group = QGroupBox("After")
+        after_group.setStyleSheet("QGroupBox { font-weight: bold; border: 1px solid gray; margin-top: 10px; }")
+        after_layout = QVBoxLayout()
+
         self.aug_image_label = QLabel("No preview available")
         self.aug_image_label.setAlignment(Qt.AlignCenter)
-        self.aug_image_label.setMinimumSize(200, 200)
-        self.mainArea.layout().addWidget(self.aug_image_label)
+        self.aug_image_label.setMinimumSize(256, 256)
+        after_layout.addWidget(self.aug_image_label)
+
+        after_group.setLayout(after_layout)
+
+        # ---- Add to mainArea ----
+        layout = self.mainArea.layout()
+        layout.addWidget(before_group)
+        layout.addWidget(after_group)
 
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder to Save Augmented Images")
@@ -113,17 +151,26 @@ class OWImageAugmenter(widget.OWWidget):
         self.image_table = table
         self.show_preview()
 
+    def apply_custom_transforms(self, img: Image.Image) -> Image.Image:
+        if self.blur:
+            img = img.filter(ImageFilter.GaussianBlur(radius=2))
+        if self.gaussian_noise:
+            arr = np.array(img).astype(np.float32)
+            noise = np.random.normal(0, 15, arr.shape).astype(np.float32)
+            arr += noise
+            arr = np.clip(arr, 0, 255).astype(np.uint8)
+            img = Image.fromarray(arr)
+        return img
+
+
     def generate_augmentations(self):
         if not self.image_table or not self.save_folder:
             self.error("No image data or folder selected.")
             return
 
         self.progressBarInit()
-        domain_attrs = []
         metas = []
         image_col = None
-        width_col = None
-        height_col = None
         origin = None
 
         domain = self.image_table.domain
@@ -133,10 +180,6 @@ class OWImageAugmenter(widget.OWWidget):
                 image_col = var
                 origin = var.attributes.get("origin")
                 var.attributes["origin"] = self.save_folder
-            elif var.name.lower() == "width":
-                width_col = var
-            elif var.name.lower() == "height":
-                height_col = var
             metas.append(var)
 
         if not image_col:
@@ -152,7 +195,6 @@ class OWImageAugmenter(widget.OWWidget):
             brightness_range=(0.7, 1.3) if self.brightness else None,
             fill_mode='nearest')
 
-        new_paths = []
         new_rows = []
         new_y = []
         
@@ -160,7 +202,7 @@ class OWImageAugmenter(widget.OWWidget):
             path = row.metas[self.image_table.domain.metas.index(image_col)]
             try:
                 img = load_img(os.path.join(origin,path))
-            except:
+            except Exception:
                 print("Could not load "+os.path.join(origin,path))
                 continue
 
@@ -172,6 +214,7 @@ class OWImageAugmenter(widget.OWWidget):
             for j in range(self.augment_count):
                 batch = next(gen)
                 aug_img = array_to_img(batch[0])
+                aug_img = self.apply_custom_transforms(aug_img)
                 filename = f"aug_{uuid.uuid4().hex}.png"
                 fullpath = os.path.join(self.save_folder, filename)
                 aug_img.save(fullpath)
@@ -235,6 +278,7 @@ class OWImageAugmenter(widget.OWWidget):
         gen = datagen.flow(x, batch_size=1)
         batch = next(gen)
         aug_img = array_to_img(batch[0])
+        aug_img = self.apply_custom_transforms(aug_img)
         return aug_img
 
 if __name__ == "__main__":

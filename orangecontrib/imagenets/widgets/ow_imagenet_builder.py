@@ -4,7 +4,7 @@ from AnyQt.QtWidgets import (
 )
 from AnyQt.QtCore import Qt
 from Orange.widgets import gui
-from Orange.widgets.widget import OWWidget, Input, Output
+from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets.settings import Setting
 import keras.layers as klayers
 import keras.models as kmodels
