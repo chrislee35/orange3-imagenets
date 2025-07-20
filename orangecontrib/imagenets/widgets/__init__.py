@@ -9,7 +9,7 @@ import sysconfig
 NAME = "ImageNets"
 DESCRIPTION = "ImageNet Widgets"
 
-ICON = "icons/imagenet-orange.svg"
+ICON = "icons/imagenets.svg"
 PRIORITY = 1000
 BACKGROUND = "#99ffee"
 

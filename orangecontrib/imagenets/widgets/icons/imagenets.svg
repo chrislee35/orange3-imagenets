@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   enable-background="new 0 0 48 48"
+   xml:space="preserve"
+   viewBox="0 0 800 800"
+   version="1.1"
+   y="0px"
+   x="0px"
+   id="svg1069"
+   sodipodi:docname="imagenets.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   width="800"
+   height="800"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+   id="namedview1071"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="false"
+   inkscape:zoom="0.98246702"
+   inkscape:cx="365.40667"
+   inkscape:cy="446.32541"
+   inkscape:window-width="1920"
+   inkscape:window-height="1022"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg1069" /><defs
+   id="defs972"><linearGradient
+     inkscape:collect="always"
+     id="linearGradient9249"><stop
+       style="stop-color:#000000;stop-opacity:1;"
+       offset="0"
+       id="stop9245" /><stop
+       style="stop-color:#000000;stop-opacity:0;"
+       offset="1"
+       id="stop9247" /></linearGradient><inkscape:perspective
+     sodipodi:type="inkscape:persp3d"
+     inkscape:vp_x="0.28798317 : 752.42616 : 1"
+     inkscape:vp_y="0.78798317 : 773.09283 : 1"
+     inkscape:vp_z="0.50000003 : 0.16666667 : 0"
+     inkscape:persp3d-origin="0.78798317 : 752.25949 : 1"
+     id="perspective1381" /><inkscape:perspective
+     sodipodi:type="inkscape:persp3d"
+     inkscape:vp_x="-0.5 : 0.16666667 : 0"
+     inkscape:vp_y="0 : 20.833333 : 0"
+     inkscape:vp_z="0.5 : 0.16666667 : 0"
+     inkscape:persp3d-origin="1.6526891 : 752.02713 : 1"
+     id="perspective1265" /><linearGradient
+     id="linearGradient4030"
+     y2="31"
+     gradientUnits="userSpaceOnUse"
+     x2="21"
+     gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+     y1="39"
+     x1="21"><stop
+       stop-color="#FFF"
+       offset="0"
+       id="stop957" /><stop
+       stop-color="#FEFDF6"
+       offset="0.10296"
+       id="stop959" /><stop
+       stop-color="#FCF6DE"
+       offset="0.2235"
+       id="stop961" /><stop
+       stop-color="#F9ECB6"
+       offset="0.3985"
+       id="stop963" /><stop
+       stop-color="#F5DE7F"
+       offset="0.65276"
+       id="stop965" /><stop
+       stop-color="#EFCD39"
+       offset="0.8298"
+       id="stop967" /><stop
+       stop-color="#EBBE00"
+       offset="1"
+       id="stop969" /></linearGradient><inkscape:perspective
+     sodipodi:type="inkscape:persp3d"
+     inkscape:vp_x="-0.24339712 : 0.081132373 : 0"
+     inkscape:vp_y="0 : 10.141546 : 0"
+     inkscape:vp_z="0.24339712 : 0.081132373 : 0"
+     inkscape:persp3d-origin="1.0163752 : 752.36256 : 1"
+     id="perspective1265-3" /><inkscape:perspective
+     sodipodi:type="inkscape:persp3d"
+     inkscape:vp_x="-0.14126664 : 0.047088881 : 0"
+     inkscape:vp_y="0 : 5.8861102 : 0"
+     inkscape:vp_z="0.14126664 : 0.047088881 : 0"
+     inkscape:persp3d-origin="1.1228907 : 752.45738 : 1"
+     id="perspective1265-9" /><inkscape:perspective
+     sodipodi:type="inkscape:persp3d"
+     inkscape:vp_x="-0.14126664 : 0.047088881 : 0"
+     inkscape:vp_y="0 : 5.8861102 : 0"
+     inkscape:vp_z="0.14126664 : 0.047088881 : 0"
+     inkscape:persp3d-origin="1.0573399 : 752.19829 : 1"
+     id="perspective1265-9-0" /><linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient9249"
+     id="linearGradient9251"
+     x1="-99.316731"
+     y1="519.25711"
+     x2="993.62089"
+     y2="519.25711"
+     gradientUnits="userSpaceOnUse" /><linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient9249"
+     id="linearGradient10101"
+     gradientUnits="userSpaceOnUse"
+     x1="-99.316731"
+     y1="519.25711"
+     x2="993.62089"
+     y2="519.25711" /><linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient9249"
+     id="linearGradient10103"
+     gradientUnits="userSpaceOnUse"
+     x1="-99.316731"
+     y1="519.25711"
+     x2="993.62089"
+     y2="519.25711" /></defs>
+	<radialGradient
+   id="SVGID_1_"
+   gradientUnits="userSpaceOnUse"
+   cy="13.761"
+   cx="17.313999"
+   gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+   r="27.327999">
+		<stop
+   stop-color="#FFD773"
+   offset="0"
+   id="stop974" />
+		<stop
+   stop-color="#FFD46E"
+   offset="0.0134"
+   id="stop976" />
+		<stop
+   stop-color="#FDC450"
+   offset="0.1128"
+   id="stop978" />
+		<stop
+   stop-color="#FCB738"
+   offset="0.2174"
+   id="stop980" />
+		<stop
+   stop-color="#FBAD27"
+   offset="0.3282"
+   id="stop982" />
+		<stop
+   stop-color="#FAA81D"
+   offset="0.4492"
+   id="stop984" />
+		<stop
+   stop-color="#FAA61A"
+   offset="0.6"
+   id="stop986" />
+		<stop
+   stop-color="#F7A01B"
+   offset="0.6747"
+   id="stop988" />
+		<stop
+   stop-color="#ED901F"
+   offset="0.7723"
+   id="stop990" />
+		<stop
+   stop-color="#DD7525"
+   offset="1"
+   id="stop992" />
+	</radialGradient>
+	
+	
+	
+	<linearGradient
+   id="SVGID_5_"
+   y2="18.999001"
+   gradientUnits="userSpaceOnUse"
+   x2="32.171001"
+   gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+   y1="25.959"
+   x1="25.211">
+		<stop
+   stop-color="#AABEB4"
+   offset="0.05"
+   id="stop1003" />
+		<stop
+   stop-color="#ACC1B6"
+   offset="0.0609"
+   id="stop1005" />
+		<stop
+   stop-color="#BED5C6"
+   offset="0.1592"
+   id="stop1007" />
+		<stop
+   stop-color="#C9E2CF"
+   offset="0.2563"
+   id="stop1009" />
+		<stop
+   stop-color="#CDE6D2"
+   offset="0.35"
+   id="stop1011" />
+		<stop
+   stop-color="#AECCCA"
+   offset="0.4837"
+   id="stop1013" />
+		<stop
+   stop-color="#5F8AB6"
+   offset="0.7742"
+   id="stop1015" />
+		<stop
+   stop-color="#1E54A6"
+   offset="1"
+   id="stop1017" />
+	</linearGradient>
+	
+	<radialGradient
+   id="SVGID_6_"
+   gradientUnits="userSpaceOnUse"
+   cy="22.436001"
+   cx="28.667"
+   gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+   r="4.1876001">
+		<stop
+   stop-color="#E6F0E6"
+   offset="0.15"
+   id="stop1022" />
+		<stop
+   stop-color="#A0DCE6"
+   offset="0.85"
+   id="stop1024" />
+	</radialGradient>
+	
+	
+	
+	<linearGradient
+   id="SVGID_7_"
+   y2="18.997"
+   gradientUnits="userSpaceOnUse"
+   x2="16.396"
+   gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+   y1="25.957001"
+   x1="9.4355001">
+		<stop
+   stop-color="#AABEB4"
+   offset="0.05"
+   id="stop1033" />
+		<stop
+   stop-color="#ACC1B6"
+   offset="0.0609"
+   id="stop1035" />
+		<stop
+   stop-color="#BED5C6"
+   offset="0.1592"
+   id="stop1037" />
+		<stop
+   stop-color="#C9E2CF"
+   offset="0.2563"
+   id="stop1039" />
+		<stop
+   stop-color="#CDE6D2"
+   offset="0.35"
+   id="stop1041" />
+		<stop
+   stop-color="#AECCCA"
+   offset="0.4837"
+   id="stop1043" />
+		<stop
+   stop-color="#5F8AB6"
+   offset="0.7742"
+   id="stop1045" />
+		<stop
+   stop-color="#1E54A6"
+   offset="1"
+   id="stop1047" />
+	</linearGradient>
+	
+	<radialGradient
+   id="SVGID_8_"
+   gradientUnits="userSpaceOnUse"
+   cy="22.436001"
+   cx="12.893"
+   gradientTransform="matrix(1.2782108,0,0,1.2782108,-6.6771854,-6.6770598)"
+   r="4.1876001">
+		<stop
+   stop-color="#E6F0E6"
+   offset="0.15"
+   id="stop1052" />
+		<stop
+   stop-color="#A0DCE6"
+   offset="0.85"
+   id="stop1054" />
+	</radialGradient>
+	
+	
+	
+	
+	
+
+<g
+   id="g9220"
+   transform="matrix(0.71444433,0,0,0.71444433,81.683156,-98.120845)"
+   style="stroke:url(#linearGradient9251);stroke-width:2.99527;stroke-dasharray:none"><text
+     xml:space="preserve"
+     style="font-size:31.6793px;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus, Normal';fill:#6e2900;fill-opacity:1;stroke:url(#linearGradient10101);stroke-width:2.99527;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+     x="-129.34874"
+     y="477.23605"
+     id="text8779"><tspan
+       sodipodi:role="line"
+       x="-129.34874"
+       y="477.23605"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:380.152px;font-family:'Nimbus Mono PS';-inkscape-font-specification:'Nimbus Mono PS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#6e2900;fill-opacity:1;stroke:url(#linearGradient10101);stroke-width:2.99527;stroke-dasharray:none"
+       id="tspan9131">Image</tspan></text><text
+     xml:space="preserve"
+     style="font-size:31.6793px;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus, Normal';fill:#6e2900;fill-opacity:1;stroke:url(#linearGradient10103);stroke-width:2.99527;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+     x="6.3656096"
+     y="769.98163"
+     id="text8779-9"><tspan
+       sodipodi:role="line"
+       x="6.3656096"
+       y="769.98163"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:380.152px;font-family:'Nimbus Mono PS';-inkscape-font-specification:'Nimbus Mono PS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#6e2900;fill-opacity:1;stroke:url(#linearGradient10103);stroke-width:2.99527;stroke-dasharray:none"
+       id="tspan9131-9">Nets</tspan></text></g><style
+   type="text/css"
+   id="style8837">
+	.st0{fill:none;stroke:#777777;stroke-width:2;stroke-miterlimit:10;}
+	.st1{fill:#777777;}
+	.st2{fill:#333333;}
+</style><text
+   xml:space="preserve"
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:192px;font-family:'Nimbus Mono PS';-inkscape-font-specification:'Nimbus Mono PS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;opacity:0.489255;fill:#6e2900;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+   x="842.32532"
+   y="927.01447"
+   id="text9137"><tspan
+     sodipodi:role="line"
+     id="tspan9135"
+     x="842.32532"
+     y="927.01447" /></text><rect
+   style="opacity:0.984793;fill:#732500;fill-opacity:1;stroke:#000000;stroke-width:4.801;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+   id="rect10157"
+   width="70.366608"
+   height="193.10759"
+   x="262.90927"
+   y="518.50873" /><rect
+   style="opacity:0.984793;fill:#732500;fill-opacity:1;stroke:#000000;stroke-width:4.801;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+   id="rect10159"
+   width="66.050117"
+   height="255.82133"
+   x="152.36549"
+   y="487.15186" /><rect
+   style="opacity:0.984793;fill:#732500;fill-opacity:1;stroke:#000000;stroke-width:4.801;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+   id="rect10161"
+   width="130.01039"
+   height="137.04865"
+   x="377.76953"
+   y="546.53821" /><rect
+   style="opacity:0.984793;fill:#732500;fill-opacity:1;stroke:#000000;stroke-width:4.801;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+   id="rect10163"
+   width="115.68963"
+   height="32.739311"
+   x="552.27362"
+   y="598.69287" /></svg>

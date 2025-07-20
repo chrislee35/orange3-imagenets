@@ -7,7 +7,7 @@ from Orange.widgets.widget import OWWidget, Output
 from keras.models import model_from_json, load_model
 
 class OWLoadKerasModel(OWWidget):
-    name = "Load ImageNet Model"
+    name = "Load ImageNet"
     description = "Load a Keras Sequential model from .h5 or JSON+weights."
     icon = "icons/load.svg"
     priority = 10
@@ -46,7 +46,7 @@ class OWLoadKerasModel(OWWidget):
         try:
             self.model = load_model(filename)
             self.Outputs.model.send(self.model)
-            self.setStatusMessage("Loaded model from: " + os.path.basename(filename))
+            #self.setStatusMessage("Loaded model from: " + os.path.basename(filename))
         except Exception as e:
             self.error(str(e))
 
@@ -66,6 +66,6 @@ class OWLoadKerasModel(OWWidget):
                 self.model = model_from_json(json_str)
             self.model.load_weights(weights_path)
             self.Outputs.model.send(self.model)
-            self.setStatusMessage(f"Loaded: {os.path.basename(json_path)} + weights")
+            #self.setStatusMessage(f"Loaded: {os.path.basename(json_path)} + weights")
         except Exception as e:
             self.error(str(e))

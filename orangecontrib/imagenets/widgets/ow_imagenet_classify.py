@@ -49,14 +49,14 @@ class ClassifyWorker(QThread):
         self.finished.emit(results)
 
 class OWImageNetClassify(OWWidget):
-    name = "ImageNet Classify"
+    name = "Classify Images"
     description = "Classify images using a trained Keras model."
     icon = "icons/classify.svg"
     priority = 20
 
     class Inputs:
         data = Input("Data", Table)
-        model = Input("Model", object)
+        model = Input("Model", object, auto_summary=False)
 
     class Outputs:
         annotated_data = Output("Annotated Data", Table)

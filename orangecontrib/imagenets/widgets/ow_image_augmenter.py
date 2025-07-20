@@ -12,9 +12,9 @@ import numpy as np
 
 
 class OWImageAugmenter(widget.OWWidget):
-    name = "Image Augmenter"
+    name = "Augment Images"
     description = "Applies image augmentation techniques to a set of input images."
-    icon = "icons/imageaugmenter.svg"
+    icon = "icons/augment.svg"
     priority = 100
 
     class Inputs:

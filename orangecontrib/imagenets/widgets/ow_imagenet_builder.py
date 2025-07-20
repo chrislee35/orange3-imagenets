@@ -41,9 +41,9 @@ PREBUILT_MODELS = {
 }
 
 class OWImageNetBuilder(OWWidget):
-    name = "ImageNet Builder"
+    name = "Build ImageNet"
     description = "Build a custom image neural network with Keras"
-    icon = "icons/imagenet_builder.svg"
+    icon = "icons/build.svg"
     priority = 10
 
     model_config = Setting("[]")  # JSON list of layers

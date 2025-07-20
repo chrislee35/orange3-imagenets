@@ -37,9 +37,9 @@ class KerasCallback(Callback):
         QCoreApplication.processEvents()
 
 class OWImageTrainAndScore(widget.OWWidget):
-    name = "Image Train and Score"
+    name = "Train ImageNet"
     description = "Train a Keras model on image data and show live performance."
-    icon = "icons/train_score.svg"
+    icon = "icons/train.svg"
     priority = 10
 
     class Inputs:

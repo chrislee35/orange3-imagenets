@@ -10,11 +10,11 @@ from Orange.widgets.settings import Setting
 class OWSaveImageNet(OWWidget):
     name = "Save ImageNet"
     description = "Save a trained Keras Sequential model, an ImageNet, to .h5 or .json format."
-    icon = "icons/save_model.svg"
+    icon = "icons/save.svg"
     priority = 20
 
     class Inputs:
-        model = Input("Model", object)
+        model = Input("Model", object, auto_summary=False)
 
     last_dir = Setting(os.path.expanduser("~"))
     want_control_area = False
