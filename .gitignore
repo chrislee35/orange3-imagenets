@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 doc/_*
+models/
 
 # C extensions
 *.so

@@ -9,7 +9,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_arra
 import os
 import uuid
 import numpy as np
-import random
 
 
 class OWImageAugmenter(widget.OWWidget):
