@@ -25,9 +25,11 @@ class OWLoadKerasModel(OWWidget):
         super().__init__()
         self.model = None
         self.mainArea.layout().addWidget(QLabel("Load Options:"))
-        gui.button(self.mainArea, self, "Load from H5", callback=self.load_h5_dialog)
-        gui.button(self.mainArea, self, "Load from JSON + Weights", callback=self.load_json_dialog)
+        gui.button(self.mainArea, self, "Load from H5", callback=self.load_h5_dialog, width=250)
+        gui.button(self.mainArea, self, "Load from JSON + Weights", callback=self.load_json_dialog, width=250)
         self.mainArea.layout().setAlignment(Qt.AlignTop)
+        self.adjustSize()
+
         if len(self.load_file) > 0:
             if self.load_type == 'h5':
                 self.load_h5(self.load_file)
@@ -69,3 +71,9 @@ class OWLoadKerasModel(OWWidget):
             #self.setStatusMessage(f"Loaded: {os.path.basename(json_path)} + weights")
         except Exception as e:
             self.error(str(e))
+
+if __name__ == "__main__":
+    from Orange.widgets.utils.widgetpreview import WidgetPreview
+    WidgetPreview(OWLoadKerasModel).run()
+
+    

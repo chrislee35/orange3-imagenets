@@ -43,11 +43,11 @@ class OWImageTrainAndScore(widget.OWWidget):
     priority = 10
 
     class Inputs:
-        model = Input("Learner", object)
+        model = Input("Learner", object, auto_summary=False)
         data = Input("Evaluation Data", Table)
 
     class Outputs:
-        trained_model = Output("Trained Model", object)
+        trained_model = Output("Trained Model", object, auto_summary=False)
 
     batch_size = Setting(32)
     dropout_rate = Setting(0.5)

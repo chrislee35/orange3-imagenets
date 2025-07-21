@@ -30,4 +30,11 @@ Load the image net from a saved file.
 
 ![Viewing the classification results](imgs/classified-data-table.png)
 
+### Preprocessing and Augmenting Images
+
+![Preprocess and Augment Workflow](imgs/preprocess-and-augment-workflow.png)
+
+![Preprocess image widget](imgs/preprocess.png)
+
+![Augment image widget](imgs/augment.png)
 

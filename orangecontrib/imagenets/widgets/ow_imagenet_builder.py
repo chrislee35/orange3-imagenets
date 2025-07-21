@@ -49,7 +49,7 @@ class OWImageNetBuilder(OWWidget):
     model_config = Setting("[]")  # JSON list of layers
 
     class Outputs:
-        model = Output("Model", object)
+        model = Output("Model", object, auto_summary=False)
 
     def __init__(self):
         super().__init__()

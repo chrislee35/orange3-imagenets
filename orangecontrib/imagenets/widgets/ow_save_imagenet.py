@@ -23,9 +23,10 @@ class OWSaveImageNet(OWWidget):
         super().__init__()
         self.model = None
 
-        gui.button(self.mainArea, self, "Save as .h5", callback=self.save_as_h5)
-        gui.button(self.mainArea, self, "Save as JSON", callback=self.save_as_json)
+        gui.button(self.mainArea, self, "Save as .h5", callback=self.save_as_h5, width=250)
+        gui.button(self.mainArea, self, "Save as JSON", callback=self.save_as_json, width=250)
         self.mainArea.layout().setAlignment(Qt.AlignTop)
+        self.adjustSize()
 
     @Inputs.model
     def set_model(self, model):
@@ -55,3 +56,7 @@ class OWSaveImageNet(OWWidget):
             with open(filename, "w") as f:
                 f.write(self.model.to_json(indent=2))
             self.last_dir = os.path.dirname(filename)
+
+if __name__ == "__main__":
+    from Orange.widgets.utils.widgetpreview import WidgetPreview
+    WidgetPreview(OWSaveImageNet).run()
