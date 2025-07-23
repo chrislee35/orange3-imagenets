@@ -214,7 +214,7 @@ class OWImagePreprocessor(OWWidget):
 
     def show_preview_image(self):
         if not self.data:
-            self.data.setText("No data")
+            self.info_label.setText("No data")
             return
 
         origin, image_col_index = image_table_variables(self.data)
