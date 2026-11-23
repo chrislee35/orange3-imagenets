@@ -1,6 +1,6 @@
 # Makefile for building Sphinx docs and Python package
 
-.PHONY: all docs build clean
+.PHONY: all docs build clean test ruff ruff-fix black flake8 pylint lint release
 
 # Build everything: docs + package
 all: docs build
@@ -22,13 +22,22 @@ clean:
 	rm -rf build/ dist/ *.egg-info doc/_build
 
 test:
-	python tests/test_imagenets.py
+	QT_QPA_PLATFORM=offscreen python -m pytest tests -q
 
 ruff:
-	ruff check orangecontrib/imagenets/widgets/*.py
+	ruff check orangecontrib tests
 
 ruff-fix:
-	ruff check --fix orangecontrib/imagenets/widgets/*.py
+	ruff check --fix orangecontrib tests
+
+black:
+	black orangecontrib tests
+
+flake8:
+	flake8 orangecontrib tests
 
 pylint:
-	pylint orangecontrib/imagenets/widgets/*.py
+	pylint orangecontrib tests
+
+lint: ruff flake8 pylint
+	black --check orangecontrib tests

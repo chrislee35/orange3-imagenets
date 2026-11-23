@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "orange3-imagenets"
@@ -8,7 +8,8 @@ version = "0.0.3"
 description = "A collection of Orange3 widgets for training and applying neural networks to images"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "CC-BY-NC-SA-4.0" }
+license = "CC-BY-NC-SA-4.0"
+license-files = ["LICENSE"]
 authors = [
     { name = "Chris Lee", email = "github@chrislee.dhs.org" },
 ]
@@ -29,26 +30,29 @@ dependencies = [
     "tf_keras >= 2.19.0"
 ]
 
-[license]
-license = "CC-BY-NC-SA-4.0"
-license-files = ["LICENSE"]
-
 [project.optional-dependencies]
-test = ["coverage"]
-doc = ["sphinx", "recommonmark", "sphinx_rtd_theme"]
+dev = [
+    "black",
+    "build",
+    "flake8",
+    "pylint",
+    "pytest",
+    "ruff",
+    "twine>=7",  # older twine/packaging reject the metadata 2.5 that hatchling writes for an SPDX license
+]
+test = ["pytest", "coverage"]
+doc = ["sphinx", "myst-parser", "sphinx_rtd_theme"]
 
 [project.urls]
 Homepage = "https://github.com/chrislee35/orange3-imagenets"
+Documentation = "https://chrislee35.github.io/orange3-imagenets/"
 
-[tool.setuptools.packages.find]
-where = ["."]
-namespaces = true
+[tool.hatch.build.targets.wheel]
+# orangecontrib has no __init__.py: it is a namespace shared by every Orange add-on, so only imagenets/ is packaged under it.
+packages = ["orangecontrib"]
 
-[tool.setuptools.package-data]
-"orangecontrib.imagenets.widgets" = ["icons/*.svg"]
-
-[tool.setuptools.data-files]
-"help/orange3-imagenets" = ["doc/_build/html/**/*"]
+[tool.hatch.build.targets.sdist]
+include = ["orangecontrib", "tests", "doc", "README.md", "LICENSE", "pyproject.toml"]
 
 [project.entry-points."orange.widgets"]
 imagenets = "orangecontrib.imagenets.widgets"
@@ -58,3 +62,32 @@ orange3-imagenets = "orangecontrib.imagenets"
 
 [project.entry-points."orange.canvas.help"]
 html-index = "orangecontrib.imagenets.widgets:WIDGET_HELP_PATH"
+
+[tool.black]
+line-length = 140
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.lint]
+extend-select = ["I"]
+# flake8 enforces E402 where tests/conftest.py needs late imports; keep ruff from calling its noqa unused.
+external = ["E402"]
+
+[tool.ruff.lint.per-file-ignores]
+# conftest must run its sys.path setup before importing the package, so its imports cannot be sorted to the top.
+"tests/conftest.py" = ["I001"]
+
+[tool.pylint.main]
+py-version = "3.11"
+
+[tool.pylint.format]
+max-line-length = 140
+
+[tool.pylint."messages control"]
+# Orange widgets are GUI classes with many attributes, and the module/class docstrings add little.
+disable = ["missing-module-docstring", "missing-class-docstring", "missing-function-docstring", "too-many-instance-attributes", "too-few-public-methods"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

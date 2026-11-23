@@ -10,31 +10,31 @@ Within the Add-ons installer, click on "Add more..." and type in orange3-imagene
 
 ### ImageNet Builder
 
-![Basic training workflow](imgs/training-workflow.png)
+![Basic training workflow](doc/images/training-workflow.png)
 
 You can build a Keras model by adding layers and moving them around.
 
-![Simple CNN with Dense(2) output](imgs/simple-cnn-builder.png)
+![Simple CNN with Dense(2) output](doc/images/simple-cnn-builder.png)
 
-![Training graph](imgs/training-graph.png)
+![Training graph](doc/images/training-graph.png)
 
-![Saving the ImageNet model](imgs/save-model.png)
+![Saving the ImageNet model](doc/images/save-model.png)
 
 ### Using the ImageNet
 
-![Basic classification workflow](imgs/classify-workflow.png)
+![Basic classification workflow](doc/images/classify-workflow.png)
 
 Load the image net from a saved file.
 
-![Loading the model](imgs/load-model.png)
+![Loading the model](doc/images/load-model.png)
 
-![Viewing the classification results](imgs/classified-data-table.png)
+![Viewing the classification results](doc/images/classified-data-table.png)
 
 ### Preprocessing and Augmenting Images
 
-![Preprocess and Augment Workflow](imgs/preprocess-and-augment-workflow.png)
+![Preprocess and Augment Workflow](doc/images/preprocess-and-augment-workflow.png)
 
-![Preprocess image widget](imgs/preprocess.png)
+![Preprocess image widget](doc/images/preprocess.png)
 
-![Augment image widget](imgs/augment.png)
+![Augment image widget](doc/images/augment.png)
 
