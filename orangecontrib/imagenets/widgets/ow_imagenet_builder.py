@@ -123,7 +123,12 @@ class OWImageNetBuilder(OWWidget):
         if default and layer_type == "Dense":
             config = {"type": "Dense", "units": 10, "activation": "softmax"}
 
-        insert_index = 0 if insert_at_top else (len(self.model_layers) - 1 if self.model_layers else 0)
+        if insert_at_top:
+            insert_index = 0
+        elif default:
+            insert_index = len(self.model_layers)  # the output layer goes last
+        else:
+            insert_index = len(self.model_layers) - 1 if self.model_layers else 0
         self.model_layers.insert(insert_index, config)
 
         self._rebuild_ui()

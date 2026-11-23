@@ -1,7 +1,6 @@
 import json
 
 import keras
-import pytest
 from orangewidget.tests.base import WidgetTest
 
 from orangecontrib.imagenets.widgets.ow_imagenet_builder import PREBUILT_MODELS, OWImageNetBuilder
@@ -25,8 +24,6 @@ class TestImageNetBuilder(WidgetTest):
         types = [layer["type"] for layer in self.w.model_layers]
         assert types[-2:] == ["Dropout", "Dense"]
 
-    # Known bug: add_layer inserts the default Dense *before* the Rescaling layer that clear_layers added first.
-    @pytest.mark.xfail(strict=True, reason="clear_layers builds [Dense, Rescaling] instead of [Rescaling, Dense]")
     def test_clear_layers_resets_to_rescaling_and_dense(self):
         self.w.load_prebuilt_model("LeNet")
         self.w.clear_layers()
