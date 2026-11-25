@@ -31,13 +31,13 @@ class TestImageNetBuilder(WidgetTest):
         assert self.w.model_layers[-1]["activation"] == "softmax"
 
     def test_move_and_delete(self):
-        self.w.load_prebuilt_model("SimpleCNN")
-        self.w._move_layer(0, 1)
-        assert self.w.model_layers[0]["type"] == "MaxPooling2D"
-        self.w._move_layer(0, -1)  # out of range: no-op
-        assert self.w.model_layers[0]["type"] == "MaxPooling2D"
-        self.w._delete_layer(0)
-        assert len(self.w.model_layers) == 3
+        self.w.load_prebuilt_model("SimpleCNN")  # Rescaling, Conv2D, MaxPooling2D, Flatten, Dense
+        self.w._move_layer(1, 1)
+        assert self.w.model_layers[1]["type"] == "MaxPooling2D"
+        self.w._move_layer(2, -1)  # swaps back
+        assert self.w.model_layers[1]["type"] == "Conv2D"
+        self.w._delete_layer(1)
+        assert len(self.w.model_layers) == 4
 
     def test_update_param_rebuilds_model(self):
         self.w.load_prebuilt_model("SimpleCNN")
@@ -57,3 +57,18 @@ class TestImageNetBuilder(WidgetTest):
     def test_default_config(self):
         assert self.w.default_config("Dropout") == {"type": "Dropout", "rate": 0.5}
         assert self.w.default_config("Unknown") == {"type": "Unknown"}
+
+
+    def test_presets_start_with_rescaling_and_are_not_shared(self):
+        self.w.load_prebuilt_model("SimpleCNN")
+        assert self.w.model_layers[0]["type"] == "Rescaling"
+        self.w._update_param(self.w.model_layers[-1], "units", 26)
+        assert PREBUILT_MODELS["SimpleCNN"][-1]["units"] == 10
+
+    def test_input_shape_follows_settings(self):
+        self.w.load_prebuilt_model("SimpleCNN")
+        assert self.get_output(self.w.Outputs.model, widget=self.w).input_shape == (None, 224, 224, 3)
+        self.w.input_height = self.w.input_width = 28
+        self.w.channels_index = 0
+        self.w._update_model_config()
+        assert self.get_output(self.w.Outputs.model, widget=self.w).input_shape == (None, 28, 28, 1)

@@ -8,7 +8,10 @@ from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets.settings import Setting
 import keras.layers as klayers
 import keras.models as kmodels
+import copy
 import json
+
+import keras
 
 PREBUILT_MODELS = {
     "None": [],
@@ -40,6 +43,13 @@ PREBUILT_MODELS = {
     ]
 }
 
+# Models take raw 0..255 pixels (see util/image_loader.py), so every preset starts by scaling them to 0..1.
+RESCALING = {"type": "Rescaling", "scale": 1.0 / 255}
+for _name, _layers in PREBUILT_MODELS.items():
+    if _layers:
+        PREBUILT_MODELS[_name] = [dict(RESCALING)] + _layers
+
+
 class OWImageNetBuilder(OWWidget):
     name = "Build ImageNet"
     description = "Build a custom image neural network with Keras"
@@ -47,6 +57,9 @@ class OWImageNetBuilder(OWWidget):
     priority = 10
 
     model_config = Setting("[]")  # JSON list of layers
+    input_height = Setting(224)
+    input_width = Setting(224)
+    channels_index = Setting(1)  # 0 = grayscale (1 channel, e.g. MNIST), 1 = color (3 channels)
 
     class Outputs:
         model = Output("Model", object, auto_summary=False)
@@ -69,6 +82,12 @@ class OWImageNetBuilder(OWWidget):
         export_json_btn.clicked.connect(self._export_model_json)
         export_box.layout().addWidget(export_json_btn)
 
+        shape_box = gui.widgetBox(self.controlArea, "Input Images")
+        gui.spin(shape_box, self, "input_height", 4, 1024, label="Height:", callback=self._update_model_config)
+        gui.spin(shape_box, self, "input_width", 4, 1024, label="Width:", callback=self._update_model_config)
+        gui.comboBox(shape_box, self, "channels_index", label="Channels:", items=["1 (grayscale)", "3 (color)"],
+                     callback=self._update_model_config)
+
         box = gui.widgetBox(self.controlArea, "Prebuilt ImageNets")
 
         self.prebuilt_combo = QComboBox()
@@ -79,7 +98,7 @@ class OWImageNetBuilder(OWWidget):
 
         layer_box = gui.widgetBox(self.controlArea, "Add Layers")
         for layer_type in ["ZeroPadding2D", "Conv2D", "BatchNormalization", "Activation",
-                           "MaxPooling2D", "Add", "GlobalAveragePooling2D", "Dropout", "Dense"]:
+                           "MaxPooling2D", "AveragePooling2D", "Add", "GlobalAveragePooling2D", "Flatten", "Dropout", "Dense"]:
             btn = QPushButton(layer_type)
             btn.setToolTip(f"Add a {layer_type} layer")
             btn.clicked.connect(lambda checked, l=layer_type: self.add_layer(l))
@@ -133,6 +152,10 @@ class OWImageNetBuilder(OWWidget):
 
         self._rebuild_ui()
         self._update_model_config()
+
+    @property
+    def input_channels(self):
+        return 1 if self.channels_index == 0 else 3
 
     def _rebuild_ui(self):
         while self.layer_container.count():
@@ -229,6 +252,7 @@ class OWImageNetBuilder(OWWidget):
 
     def _build_keras_model(self):
         model = kmodels.Sequential()
+        model.add(keras.Input((self.input_height, self.input_width, self.input_channels)))
         for layer_cfg in self.model_layers:
             config = dict(layer_cfg)
             layer_type = config.pop("type")
@@ -264,7 +288,7 @@ class OWImageNetBuilder(OWWidget):
 
     def load_prebuilt_model(self, name):
         if name in PREBUILT_MODELS:
-            self.model_layers = PREBUILT_MODELS[name].copy()
+            self.model_layers = copy.deepcopy(PREBUILT_MODELS[name])
             self._rebuild_ui()
             self._update_model_config()
 
@@ -275,6 +299,7 @@ class OWImageNetBuilder(OWWidget):
             "BatchNormalization": {"type": "BatchNormalization"},
             "Activation": {"type": "Activation", "activation": "relu"},
             "MaxPooling2D": {"type": "MaxPooling2D", "pool_size": 2},
+            "AveragePooling2D": {"type": "AveragePooling2D", "pool_size": 2},
             "Add": {"type": "Add"},
             "GlobalAveragePooling2D": {"type": "GlobalAveragePooling2D"},
             "Dropout": {"type": "Dropout", "rate": 0.5},

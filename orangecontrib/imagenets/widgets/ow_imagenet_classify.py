@@ -1,12 +1,13 @@
 import os
 import numpy as np
-import cv2
 
 from AnyQt.QtWidgets import QLabel
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from Orange.widgets.widget import OWWidget, Input, Output
 from Orange.data import Table, DiscreteVariable
+
+from orangecontrib.imagenets.util.image_loader import load_image, model_input_shape
 
 class ClassifyWorker(QThread):
     progress = pyqtSignal(int)
@@ -28,23 +29,29 @@ class ClassifyWorker(QThread):
                 origin = var.attributes.get("origin")
                 break
         image_col_index = domain.metas.index(image_col)
+        shape = model_input_shape(self.model)
+        class_names = getattr(self.model, "class_names", None)
         cv = domain.class_var
 
         results = []
+        batch, batch_size = [], 64
         total = len(self.data)
 
+        def flush():
+            if batch:
+                for pred in np.argmax(self.model.predict(np.stack(batch), verbose=0), axis=1):
+                    results.append(class_names[pred] if class_names else cv.str_val(pred))
+                batch.clear()
+
         for i, row in enumerate(self.data):
-            rel_path = str(row.metas[image_col_index])
-            img_path = os.path.join(origin, rel_path)
-            if not os.path.exists(img_path):
+            img = load_image(os.path.join(origin, str(row.metas[image_col_index])), shape)
+            if img is None:
                 continue
-            img = cv2.imread(img_path)
-            img = cv2.resize(img, (224, 224))
-            img = img.astype(np.float32) / 255.0
-            pred = self.model.predict(np.expand_dims(img, axis=0), verbose=0)
-            pred_class = cv.str_val(np.argmax(pred))
-            results.append(pred_class)
+            batch.append(img)
+            if len(batch) == batch_size:
+                flush()
             self.progress.emit(int(100 * (i + 1) / total))
+        flush()
 
         self.finished.emit(results)
 

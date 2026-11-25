@@ -8,14 +8,17 @@ from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QFont
 
 import os
-import cv2
 import numpy as np
+import pyqtgraph as pg
 from pyqtgraph import PlotWidget, PlotCurveItem, ScatterPlotItem
 
 from keras.utils import to_categorical
 from keras.models import clone_model
 from keras.callbacks import Callback
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+
+from orangecontrib.imagenets.util.image_loader import load_image, model_input_shape
 
 class KerasCallback(Callback):
     def __init__(self, widget):
@@ -26,6 +29,11 @@ class KerasCallback(Callback):
         logs = logs or {}
         self.widget.loss_values.append(logs.get('loss', 0))
         self.widget.accuracy_values.append(logs.get('accuracy', 0))
+        if 'val_loss' in logs:
+            self.widget.val_loss_values.append(logs['val_loss'])
+            self.widget.val_accuracy_values.append(logs.get('val_accuracy', 0))
+            self.widget.val_loss_curve.setData(np.arange(1, len(self.widget.val_loss_values) + 1), np.array(self.widget.val_loss_values))
+            self.widget.val_accuracy_curve.setData(np.arange(1, len(self.widget.val_accuracy_values) + 1), np.array(self.widget.val_accuracy_values))
 
         epochs = list(range(1, len(self.widget.loss_values) + 1))
         self.widget.loss_curve.setData(epochs, self.widget.loss_values)
@@ -52,6 +60,7 @@ class OWImageTrainAndScore(widget.OWWidget):
     batch_size = Setting(32)
     dropout_rate = Setting(0.5)
     epochs = Setting(10)
+    validation_percent = Setting(0)  # share of the images held out to score the model after each epoch
 
     def __init__(self):
         super().__init__()
@@ -60,6 +69,8 @@ class OWImageTrainAndScore(widget.OWWidget):
 
         self.loss_values = []
         self.accuracy_values = []
+        self.val_loss_values = []
+        self.val_accuracy_values = []
 
         self.init_controls()
         self.setup_training_graph()
@@ -89,6 +100,14 @@ class OWImageTrainAndScore(widget.OWWidget):
         self.epochs_spin.valueChanged.connect(self._on_epochs_changed)
         self.controlArea.layout().addWidget(self.epochs_spin)        
 
+        self.controlArea.layout().addWidget(QLabel("Validation split (%):"))
+        self.validation_spin = QSpinBox()
+        self.validation_spin.setRange(0, 50)
+        self.validation_spin.setValue(self.validation_percent)
+        self.validation_spin.setToolTip("Percent of the images held out and scored after every epoch (0 = none).")
+        self.validation_spin.valueChanged.connect(self._on_validation_changed)
+        self.controlArea.layout().addWidget(self.validation_spin)
+
         self.train_button = QPushButton("Train")
         self.train_button.clicked.connect(self.train)
         self.controlArea.layout().addWidget(self.train_button)
@@ -113,6 +132,11 @@ class OWImageTrainAndScore(widget.OWWidget):
 
         self.loss_curve = PlotCurveItem(pen='r', name="Loss")
         self.accuracy_curve = PlotCurveItem(pen='g', name="Accuracy")
+
+        self.val_loss_curve = PlotCurveItem(pen=pg.mkPen('r', style=Qt.DashLine), name="Validation loss")
+        self.val_accuracy_curve = PlotCurveItem(pen=pg.mkPen('g', style=Qt.DashLine), name="Validation accuracy")
+        self.graph.addItem(self.val_loss_curve, "Validation loss")
+        self.graph.addItem(self.val_accuracy_curve, "Validation accuracy")
 
         self.loss_scatter = ScatterPlotItem(pen=None, symbol='o', brush='r', size=6)
         self.accuracy_scatter = ScatterPlotItem(pen=None, symbol='t', brush='g', size=6)
@@ -160,7 +184,11 @@ class OWImageTrainAndScore(widget.OWWidget):
     def _on_epochs_changed(self, value):
         self.epochs = int(value)
 
+    def _on_validation_changed(self, value):
+        self.validation_percent = int(value)
+
     def prepare_data(self):
+        self.input_shape = model_input_shape(self.model)
         X = []
         y = []
 
@@ -180,9 +208,9 @@ class OWImageTrainAndScore(widget.OWWidget):
             img_path = os.path.join(origin, path)
             if not os.path.exists(img_path):
                 continue
-            img = cv2.imread(img_path)
-            img = cv2.resize(img, (224, 224))
-            img = img.astype(np.float32) / 255.0
+            img = load_image(img_path, self.input_shape)
+            if img is None:
+                continue
             X.append(img)
             y.append(str(row.get_class()))
 
@@ -202,15 +230,39 @@ class OWImageTrainAndScore(widget.OWWidget):
 
         self.loss_values.clear()
         self.accuracy_values.clear()
+        self.val_loss_values.clear()
+        self.val_accuracy_values.clear()
+        self.val_loss_curve.setData(np.array([]), np.array([]))
+        self.val_accuracy_curve.setData(np.array([]), np.array([]))
         self.progressBarInit()
 
         X, y, le = self.prepare_data()
+        n_classes, n_outputs = y.shape[1], model.output_shape[-1]
+        if n_classes != n_outputs:
+            self.progressBarFinished()
+            self.error(f"The data has {n_classes} classes but the model's last layer has {n_outputs} units. "
+                       "Set the last Dense layer's units to the number of classes.")
+            return
+        self.error()
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        # Hold out a random, class-balanced share. (Keras's own validation_split takes the LAST rows, and image folders
+        # are sorted by class, so it would hold out whole classes.)
+        validation_data = None
+        if self.validation_percent:
+            n_val = max(round(len(X) * self.validation_percent / 100), n_classes)  # stratifying needs one per class
+            if n_val >= len(X):
+                self.progressBarFinished()
+                self.error("Too few images for that validation split.")
+                return
+            X, X_val, y, y_val = train_test_split(X, y, test_size=n_val, stratify=y.argmax(axis=1), random_state=0)
+            validation_data = (X_val, y_val)
 
         model.fit(
             X, y,
             batch_size=self.batch_size,
             epochs=self.epochs,
+            validation_data=validation_data,
             verbose=0,
             callbacks=[KerasCallback(self)]
         )
