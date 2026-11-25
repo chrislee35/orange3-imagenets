@@ -34,6 +34,9 @@ Widgets
    widgets/classify-images
    widgets/preprocess-images
    widgets/augment-images
+   widgets/train-gan
+   widgets/train-diffusion
+   widgets/generate-images
 
 Indices and tables
 ==================
