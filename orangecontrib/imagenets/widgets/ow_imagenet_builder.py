@@ -304,7 +304,7 @@ class OWImageNetBuilder(OWWidget):
     def default_config(self, layer_type):
         defaults = {
             "ZeroPadding2D": {"type": "ZeroPadding2D", "padding": 1},
-            "Conv2D": {"type": "Conv2D", "filters": 32, "kernel_size": 3, "activation": "relu"},
+            "Conv2D": {"type": "Conv2D", "filters": 32, "kernel_size": 3, "activation": "relu", "padding": "valid"},
             "BatchNormalization": {"type": "BatchNormalization"},
             "Activation": {"type": "Activation", "activation": "relu"},
             "MaxPooling2D": {"type": "MaxPooling2D", "pool_size": 2},
