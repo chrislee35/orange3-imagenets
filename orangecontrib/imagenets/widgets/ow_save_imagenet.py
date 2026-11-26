@@ -6,6 +6,8 @@ from Orange.widgets import gui
 from Orange.widgets.widget import OWWidget, Input
 from Orange.widgets.settings import Setting
 
+from orangecontrib.imagenets.util.generative_io import EXTENSION, is_generative, save_generative
+
 
 class OWSaveImageNet(OWWidget):
     name = "Save ImageNet"
@@ -25,6 +27,7 @@ class OWSaveImageNet(OWWidget):
 
         gui.button(self.mainArea, self, "Save as .h5", callback=self.save_as_h5, width=250)
         gui.button(self.mainArea, self, "Save as JSON", callback=self.save_as_json, width=250)
+        gui.button(self.mainArea, self, "Save GAN / diffusion model", callback=self.save_generative_model, width=250)
         self.mainArea.layout().setAlignment(Qt.AlignTop)
         self.adjustSize()
 
@@ -35,6 +38,9 @@ class OWSaveImageNet(OWWidget):
     def save_as_h5(self):
         if self.model is None:
             self.error("No model to save.")
+            return
+        if is_generative(self.model):
+            self.error("Use \"Save GAN / diffusion model\" for this model.")
             return
 
         filename, _ = QFileDialog.getSaveFileName(self, "Save Keras Model", self.last_dir, "HDF5 files (*.h5)")
@@ -48,6 +54,9 @@ class OWSaveImageNet(OWWidget):
         if self.model is None:
             self.error("No model to save.")
             return
+        if is_generative(self.model):
+            self.error("Use \"Save GAN / diffusion model\" for this model.")
+            return
 
         filename, _ = QFileDialog.getSaveFileName(self, "Save Keras Model Architecture", self.last_dir, "JSON files (*.json)")
         if filename:
@@ -56,6 +65,21 @@ class OWSaveImageNet(OWWidget):
             with open(filename, "w") as f:
                 f.write(self.model.to_json(indent=2))
             self.last_dir = os.path.dirname(filename)
+
+    def save_generative_model(self):
+        if self.model is None:
+            self.error("No model to save.")
+            return
+        if not is_generative(self.model):
+            self.error("This is not a GAN or diffusion model; use Save as .h5 or JSON.")
+            return
+        filename, _ = QFileDialog.getSaveFileName(self, "Save GAN / diffusion model", self.last_dir, f"ImageNet models (*{EXTENSION})")
+        if filename:
+            if not filename.endswith(EXTENSION):
+                filename += EXTENSION
+            save_generative(self.model, filename)
+            self.last_dir = os.path.dirname(filename)
+
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview

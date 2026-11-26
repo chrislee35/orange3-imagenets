@@ -6,6 +6,8 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import OWWidget, Output
 from keras.models import model_from_json, load_model
 
+from orangecontrib.imagenets.util.generative_io import EXTENSION, load_generative
+
 class OWLoadKerasModel(OWWidget):
     name = "Load ImageNet"
     description = "Load a Keras Sequential model from .h5 or JSON+weights."
@@ -27,6 +29,7 @@ class OWLoadKerasModel(OWWidget):
         self.mainArea.layout().addWidget(QLabel("Load Options:"))
         gui.button(self.mainArea, self, "Load from H5", callback=self.load_h5_dialog, width=250)
         gui.button(self.mainArea, self, "Load from JSON + Weights", callback=self.load_json_dialog, width=250)
+        gui.button(self.mainArea, self, "Load GAN / diffusion model", callback=self.load_generative_dialog, width=250)
         self.mainArea.layout().setAlignment(Qt.AlignTop)
         self.adjustSize()
 
@@ -35,6 +38,8 @@ class OWLoadKerasModel(OWWidget):
                 self.load_h5(self.load_file)
             elif self.load_type == 'json':
                 self.load_json(self.load_file)
+            elif self.load_type == 'imagenet':
+                self.load_generative(self.load_file)
         
     def load_h5_dialog(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Load Model from H5", self.last_dir, "H5 Files (*.h5)")
@@ -71,6 +76,22 @@ class OWLoadKerasModel(OWWidget):
             #self.setStatusMessage(f"Loaded: {os.path.basename(json_path)} + weights")
         except Exception as e:
             self.error(str(e))
+
+    def load_generative_dialog(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Load GAN / diffusion model", self.last_dir, f"ImageNet models (*{EXTENSION})")
+        if filename:
+            self.load_generative(filename)
+
+    def load_generative(self, filename):
+        self.last_dir = os.path.dirname(filename)
+        self.load_file = filename
+        self.load_type = 'imagenet'
+        try:
+            self.model = load_generative(filename)
+            self.Outputs.model.send(self.model)
+        except Exception as e:  # noqa: BLE001 - show whatever is wrong with the file
+            self.error(str(e))
+
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
