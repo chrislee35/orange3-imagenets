@@ -37,6 +37,9 @@ Widgets
    widgets/train-gan
    widgets/train-diffusion
    widgets/generate-images
+   widgets/pretrained-imagenet
+   widgets/inspect-imagenet
+   widgets/misclassified-images
 
 Indices and tables
 ==================

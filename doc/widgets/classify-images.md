@@ -13,4 +13,4 @@ Predict the class of every image in a table.
 
 - Annotated Data: the input with a `Prediction` meta column
 
-Images are resized to 224 × 224 and scaled to 0–1 before prediction, so train the model on the same size. Classification starts as soon as both inputs are connected.
+Images are loaded at the size and color depth the model was built for. Classification starts as soon as both inputs are connected. If the data has a class, the widget shows the accuracy; connect the output to [Misclassified Images](misclassified-images.md) to see the mistakes.
