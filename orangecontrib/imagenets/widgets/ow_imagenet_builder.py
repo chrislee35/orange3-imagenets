@@ -88,6 +88,9 @@ class OWImageNetBuilder(OWWidget):
         gui.comboBox(shape_box, self, "channels_index", label="Channels:", items=["1 (grayscale)", "3 (color)"],
                      callback=self._update_model_config)
 
+        self.size_label = QLabel("")
+        shape_box.layout().addWidget(self.size_label)
+
         box = gui.widgetBox(self.controlArea, "Prebuilt ImageNets")
 
         self.prebuilt_combo = QComboBox()
@@ -189,6 +192,7 @@ class OWImageNetBuilder(OWWidget):
                 layout.addRow(key, spin)
             elif isinstance(val, float):
                 dspin = QDoubleSpinBox()
+                dspin.setDecimals(6)  # a Rescaling scale of 1/255 is 0.003922, not 0.00
                 dspin.setValue(val)
                 dspin.setSingleStep(0.1)
                 dspin.setToolTip(tooltip)
@@ -245,9 +249,14 @@ class OWImageNetBuilder(OWWidget):
         self.model_config = json.dumps(self.model_layers)
         try:
             model = self._build_keras_model()
+            if model.layers:
+                self.size_label.setText(f"Weights: {model.count_params():,}   Output: {model.output_shape[1:]}")
+            else:
+                self.size_label.setText("No layers yet.")
             self.Outputs.model.send(model)
         except Exception as e:
             print(f"Model build failed: {e}")
+            self.size_label.setText("The layers do not fit together.")
             self.Outputs.model.send(None)
 
     def _build_keras_model(self):

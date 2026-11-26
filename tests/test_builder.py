@@ -72,3 +72,11 @@ class TestImageNetBuilder(WidgetTest):
         self.w.channels_index = 0
         self.w._update_model_config()
         assert self.get_output(self.w.Outputs.model, widget=self.w).input_shape == (None, 28, 28, 1)
+
+    def test_size_label_shows_weight_count(self):
+        self.w.input_height = self.w.input_width = 28
+        self.w.channels_index = 0
+        self.w.load_prebuilt_model("SimpleCNN")
+        assert self.w.size_label.text().startswith("Weights: 54,410")
+        self.w.load_prebuilt_model("LeNet")
+        assert "Weights:" in self.w.size_label.text()

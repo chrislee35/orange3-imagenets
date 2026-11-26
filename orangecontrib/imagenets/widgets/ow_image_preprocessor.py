@@ -12,7 +12,7 @@ from Orange.widgets.widget import OWWidget, Input, Output
 from Orange.widgets.settings import Setting
 from Orange.data import Table, Domain, StringVariable
 
-from orangecontrib.imagenets.util.image_table import image_table_variables
+from orangecontrib.imagenets.util.image_table import image_table_variables, retarget_images
 
 class PreprocessWorker(QThread):
     progress = pyqtSignal(int)
@@ -51,9 +51,7 @@ class PreprocessWorker(QThread):
             cv2.imwrite(out_path, img)
             self.progress.emit(int(100 * (i + 1) / total))
 
-        data = self.data.copy()
-        data.domain.metas[self.image_col_index].attributes["origin"] = self.output_dir
-        self.finished.emit(data)
+        self.finished.emit(retarget_images(self.data, self.output_dir))
 
 class OWImagePreprocessor(OWWidget):
     name = "Preprocess Images"
@@ -94,12 +92,12 @@ class OWImagePreprocessor(OWWidget):
         self.resize_cb.stateChanged.connect(lambda: self.settings_changed("do_resize", self.resize_cb.isChecked()))
 
         self.width_spin = QSpinBox()
-        self.width_spin.setRange(32, 2048)
+        self.width_spin.setRange(4, 2048)
         self.width_spin.setValue(self.resize_width)
         self.width_spin.valueChanged.connect(lambda val: self.settings_changed("resize_width", val))
 
         self.height_spin = QSpinBox()
-        self.height_spin.setRange(32, 2048)
+        self.height_spin.setRange(4, 2048)
         self.height_spin.setValue(self.resize_height)
         self.height_spin.valueChanged.connect(lambda val: self.settings_changed("resize_height", val))
 

@@ -105,4 +105,10 @@ class OWImageNetClassify(OWWidget):
         annotated = self.data.add_column(var, predictions, to_metas=True)
         self.Outputs.annotated_data.send(annotated)
         self.progressBarFinished()
-        self.info_label.setText("Classification complete.")
+        text = "Classification complete."
+        self.accuracy = None
+        if self.data.domain.class_var is not None and len(predictions) == len(self.data):
+            truth = [str(self.data.domain.class_var.values[int(v)]) for v in self.data.Y]
+            self.accuracy = sum(t == str(p) for t, p in zip(truth, predictions)) / len(truth)
+            text = f"Classified {len(truth)} images. Accuracy: {self.accuracy:.1%}"
+        self.info_label.setText(text)

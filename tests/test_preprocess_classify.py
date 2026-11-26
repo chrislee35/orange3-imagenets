@@ -90,4 +90,7 @@ class TestClassify(WidgetTest):
         w.handle_results(["cat", "dog", "dog", "cat"])
         out = self.get_output(w.Outputs.annotated_data, widget=w)
         assert "Prediction" in [m.name for m in out.domain.metas]
-        assert w.info_label.text() == "Classification complete."
+        truth = [self.image_table.domain.class_var.values[int(v)] for v in self.image_table.Y]
+        right = sum(t == p for t, p in zip(truth, ["cat", "dog", "dog", "cat"]))
+        assert w.accuracy == right / 4
+        assert w.info_label.text() == f"Classified 4 images. Accuracy: {right / 4:.1%}"

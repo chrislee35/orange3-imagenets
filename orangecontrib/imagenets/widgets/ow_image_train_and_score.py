@@ -3,7 +3,7 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import Output, Input
 from Orange.data import Table
 
-from PyQt5.QtWidgets import QLabel, QPushButton, QSpinBox, QComboBox
+from PyQt5.QtWidgets import QLabel, QPushButton, QSpinBox
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QFont
 
@@ -58,7 +58,6 @@ class OWImageTrainAndScore(widget.OWWidget):
         trained_model = Output("Trained Model", object, auto_summary=False)
 
     batch_size = Setting(32)
-    dropout_rate = Setting(0.5)
     epochs = Setting(10)
     validation_percent = Setting(0)  # share of the images held out to score the model after each epoch
 
@@ -83,14 +82,6 @@ class OWImageTrainAndScore(widget.OWWidget):
         self.batch_size_spin.setToolTip("Number of samples per training batch.")
         self.batch_size_spin.valueChanged.connect(self._on_batch_size_changed)
         self.controlArea.layout().addWidget(self.batch_size_spin)
-
-        self.controlArea.layout().addWidget(QLabel("Dropout Rate:"))
-        self.dropout_box = QComboBox()
-        self.dropout_box.addItems(["0.0", "0.25", "0.5", "0.75"])
-        self.dropout_box.setToolTip("Proportion of dropout to apply to the model.")
-        self.dropout_box.setCurrentText(str(self.dropout_rate))
-        self.dropout_box.currentTextChanged.connect(self._on_dropout_changed)
-        self.controlArea.layout().addWidget(self.dropout_box)
 
         self.controlArea.layout().addWidget(QLabel("Epochs:"))
         self.epochs_spin = QSpinBox()
@@ -123,7 +114,7 @@ class OWImageTrainAndScore(widget.OWWidget):
         bg_color = palette.window().color().name()
 
         self.graph.setBackground(bg_color)
-        self.graph.addLegend()
+        self.graph.addLegend(offset=(-20, 150))  # right side, clear of the curves
 
         font = QFont()
         font.setPointSize(10)
@@ -177,9 +168,6 @@ class OWImageTrainAndScore(widget.OWWidget):
 
     def _on_batch_size_changed(self, value):
         self.batch_size = value
-
-    def _on_dropout_changed(self, value):
-        self.dropout_rate = float(value)
 
     def _on_epochs_changed(self, value):
         self.epochs = int(value)

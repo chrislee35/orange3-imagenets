@@ -15,4 +15,4 @@ Train a Keras model on an image table and watch its performance.
 
 **Settings**
 
-- **Batch size** (default 32), **Epochs** (default 10) and **Dropout rate** (default 0.5).
+- **Batch size** (default 32) and **Epochs** (default 10). For dropout, add a *Dropout* layer in *Build ImageNet*.

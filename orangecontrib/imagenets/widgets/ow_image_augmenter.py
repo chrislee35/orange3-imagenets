@@ -8,7 +8,14 @@ from PIL import Image, ImageFilter
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img
 import os
 import uuid
+import tempfile
+
 import numpy as np
+
+from orangecontrib.imagenets.util.image_table import image_table_variables, retarget_images
+
+_TMP_PREVIEW = os.path.join(tempfile.gettempdir(), "__preview.png")
+_TMP_AUG_PREVIEW = os.path.join(tempfile.gettempdir(), "__aug_preview.png")
 
 
 class OWImageAugmenter(widget.OWWidget):
@@ -24,9 +31,10 @@ class OWImageAugmenter(widget.OWWidget):
         augmented_images = Output("Augmented Image Table", Table)
 
     augment_count = settings.Setting(2)
-    save_folder = settings.Setting('/home/chris/Downloads/test')
+    save_folder = settings.Setting('')
     zoom = settings.Setting(True)
-    flip = settings.Setting(True)
+    flip = settings.Setting(False)  # a flipped digit is a different digit
+    include_originals = settings.Setting(True)
     rotate = settings.Setting(True)
     shear = settings.Setting(False)
     brightness = settings.Setting(False)
@@ -91,6 +99,11 @@ class OWImageAugmenter(widget.OWWidget):
         self.gauss_cb.stateChanged.connect(lambda: self.set_flag('gaussian_noise', self.gauss_cb.isChecked()))
         self.controlArea.layout().addWidget(self.gauss_cb)
 
+
+        self.orig_cb = QCheckBox("Include the original images")
+        self.orig_cb.setChecked(self.include_originals)
+        self.orig_cb.stateChanged.connect(lambda: self.set_flag('include_originals', self.orig_cb.isChecked()))
+        self.controlArea.layout().addWidget(self.orig_cb)
 
         self.run_button = QPushButton("Generate Augmented Images")
         self.run_button.clicked.connect(self.generate_augmentations)
@@ -164,27 +177,16 @@ class OWImageAugmenter(widget.OWWidget):
 
     def generate_augmentations(self):
         if not self.image_table or not self.save_folder:
-            self.error("No image data or folder selected.")
+            self.error("Select a save folder and connect an image table first.")
             return
-
-        self.progressBarInit()
-        metas = []
-        image_col = None
-        origin = None
-
-        domain = self.image_table.domain
-
-        for var in domain.metas:
-            if var.attributes.get("type") == "image":
-                image_col = var
-                origin = var.attributes.get("origin")
-                var.attributes["origin"] = self.save_folder
-            metas.append(var)
-
-        if not image_col:
+        try:
+            origin, col = image_table_variables(self.image_table)
+        except Exception:
             self.error("No image column detected.")
-            self.progressBarFinished()
             return
+        self.error()
+        os.makedirs(self.save_folder, exist_ok=True)
+        self.progressBarInit()
 
         datagen = ImageDataGenerator(
             zoom_range=0.2 if self.zoom else 0.0,
@@ -194,38 +196,34 @@ class OWImageAugmenter(widget.OWWidget):
             brightness_range=(0.7, 1.3) if self.brightness else None,
             fill_mode='nearest')
 
-        new_rows = []
-        new_y = []
-        
+        rows, names = [], []
+        total = len(self.image_table)
         for i, row in enumerate(self.image_table):
-            path = row.metas[self.image_table.domain.metas.index(image_col)]
+            src = os.path.join(origin, str(row.metas[col]))
             try:
-                img = load_img(os.path.join(origin,path))
+                img = load_img(src)
             except Exception:
-                print("Could not load "+os.path.join(origin,path))
+                print("Could not load " + src)
                 continue
-
+            if self.include_originals:
+                name = f"orig_{uuid.uuid4().hex}.png"
+                img.save(os.path.join(self.save_folder, name))
+                rows.append(i)
+                names.append(name)
             x = img_to_array(img)
             x = x.reshape((1,) + x.shape)
-
             gen = datagen.flow(x, batch_size=1)
+            for _ in range(self.augment_count):
+                aug_img = self.apply_custom_transforms(array_to_img(next(gen)[0]))
+                name = f"aug_{uuid.uuid4().hex}.png"
+                aug_img.save(os.path.join(self.save_folder, name))
+                rows.append(i)
+                names.append(name)
+            self.progressBarSet((i + 1) / total * 100)
 
-            for j in range(self.augment_count):
-                batch = next(gen)
-                aug_img = array_to_img(batch[0])
-                aug_img = self.apply_custom_transforms(aug_img)
-                filename = f"aug_{uuid.uuid4().hex}.png"
-                fullpath = os.path.join(self.save_folder, filename)
-                aug_img.save(fullpath)
-                new_row = list(row.metas)
-                new_row[self.image_table.domain.metas.index(image_col)] = filename
-                new_rows.append(new_row)
-                new_y.append(row.y)
-                self.progressBarSet((i * self.augment_count + j) / (len(self.image_table) * self.augment_count) * 100)
-        
-        metas_array = np.array(new_rows, dtype=object)
-        new_table = Table.from_numpy(domain, X=np.empty((len(new_rows), 0)), Y=np.array(new_y), metas=metas_array)
-        self.Outputs.augmented_images.send(new_table)
+        # The input table keeps pointing at the original folder; only the copy points at the save folder.
+        self.Outputs.augmented_images.send(
+            retarget_images(self.image_table, self.save_folder, rows=rows, image_names=names))
         self.progressBarFinished()
 
     def show_preview(self):
@@ -255,10 +253,10 @@ class OWImageAugmenter(widget.OWWidget):
             image.thumbnail((256, 256))
 
             aug_image = self.augment_image(image)
-            image.save("/tmp/__preview.png")  # Temporary path to convert to pixmap
-            aug_image.save('/tmp/__aug_preview.png')
-            pixmap = QPixmap("/tmp/__preview.png")
-            aug_pixmap = QPixmap("/tmp/__aug_preview.png")
+            image.save(_TMP_PREVIEW)  # Temporary path to convert to pixmap
+            aug_image.save(_TMP_AUG_PREVIEW)
+            pixmap = QPixmap(_TMP_PREVIEW)
+            aug_pixmap = QPixmap(_TMP_AUG_PREVIEW)
             self.image_label.setPixmap(pixmap)
             self.aug_image_label.setPixmap(aug_pixmap)
         except Exception as e:
