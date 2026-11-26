@@ -6,6 +6,8 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import OWWidget, Output
 from keras.models import model_from_json, load_model
 
+from orangecontrib.imagenets.util import layers as _custom_layers  # noqa: F401  (registers ResidualBlock)
+
 from orangecontrib.imagenets.util.generative_io import EXTENSION, load_generative
 
 class OWLoadKerasModel(OWWidget):

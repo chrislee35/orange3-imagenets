@@ -7,6 +7,7 @@ from Orange.widgets import gui
 from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets.settings import Setting
 import keras.layers as klayers
+from orangecontrib.imagenets.util import layers as custom_layers
 import keras.models as kmodels
 import copy
 import json
@@ -32,13 +33,12 @@ PREBUILT_MODELS = {
         {"type": "Dense", "units": 10, "activation": "softmax"}
     ],
     "MiniResNet": [
-        {"type": "Conv2D", "filters": 64, "kernel_size": 3, "padding": "same", "activation": "relu"},
-        {"type": "BatchNormalization"},
-        {"type": "Conv2D", "filters": 64, "kernel_size": 3, "padding": "same", "activation": "relu"},
-        {"type": "BatchNormalization"},
+        {"type": "Conv2D", "filters": 32, "kernel_size": 3, "padding": "same", "activation": "relu"},
+        {"type": "ResidualBlock", "filters": 32},
         {"type": "MaxPooling2D", "pool_size": 2},
-        {"type": "Conv2D", "filters": 128, "kernel_size": 3, "padding": "same", "activation": "relu"},
-        {"type": "GlobalAveragePooling2D"},
+        {"type": "ResidualBlock", "filters": 64},
+        {"type": "MaxPooling2D", "pool_size": 2},
+        {"type": "Flatten"},
         {"type": "Dense", "units": 10, "activation": "softmax"}
     ]
 }
@@ -101,7 +101,7 @@ class OWImageNetBuilder(OWWidget):
 
         layer_box = gui.widgetBox(self.controlArea, "Add Layers")
         for layer_type in ["ZeroPadding2D", "Conv2D", "BatchNormalization", "Activation",
-                           "MaxPooling2D", "AveragePooling2D", "Add", "GlobalAveragePooling2D", "Flatten", "Dropout", "Dense"]:
+                           "MaxPooling2D", "AveragePooling2D", "ResidualBlock", "GlobalAveragePooling2D", "Flatten", "Dropout", "Dense"]:
             btn = QPushButton(layer_type)
             btn.setToolTip(f"Add a {layer_type} layer")
             btn.clicked.connect(lambda checked, l=layer_type: self.add_layer(l))
@@ -265,7 +265,7 @@ class OWImageNetBuilder(OWWidget):
         for layer_cfg in self.model_layers:
             config = dict(layer_cfg)
             layer_type = config.pop("type")
-            layer_class = getattr(klayers, layer_type)
+            layer_class = getattr(custom_layers, layer_type, None) or getattr(klayers, layer_type)
             model.add(layer_class(**config))
         return model
 
@@ -309,7 +309,7 @@ class OWImageNetBuilder(OWWidget):
             "Activation": {"type": "Activation", "activation": "relu"},
             "MaxPooling2D": {"type": "MaxPooling2D", "pool_size": 2},
             "AveragePooling2D": {"type": "AveragePooling2D", "pool_size": 2},
-            "Add": {"type": "Add"},
+            "ResidualBlock": {"type": "ResidualBlock", "filters": 64},
             "GlobalAveragePooling2D": {"type": "GlobalAveragePooling2D"},
             "Dropout": {"type": "Dropout", "rate": 0.5},
             "Dense": {"type": "Dense", "units": 64, "activation": "relu"},

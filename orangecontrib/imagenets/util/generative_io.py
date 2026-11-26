@@ -11,6 +11,8 @@ import zipfile
 
 import keras
 
+from orangecontrib.imagenets.util import layers as _custom_layers  # noqa: F401  (registers ResidualBlock)
+
 from orangecontrib.imagenets.util.diffusion import DiffusionModel
 from orangecontrib.imagenets.util.gan import GANModel
 
