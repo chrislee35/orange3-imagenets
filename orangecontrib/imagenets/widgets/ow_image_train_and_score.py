@@ -3,7 +3,7 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import Output, Input
 from Orange.data import Table
 
-from PyQt5.QtWidgets import QLabel, QPushButton, QSpinBox
+from PyQt5.QtWidgets import QComboBox, QLabel, QPushButton, QSpinBox
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QFont
 
@@ -12,6 +12,7 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget, PlotCurveItem, ScatterPlotItem
 
+import keras
 from keras.utils import to_categorical
 from keras.models import clone_model
 from keras.callbacks import Callback
@@ -44,6 +45,9 @@ class KerasCallback(Callback):
         self.widget.progressBarSet(100 * (epoch + 1) / self.widget.epochs)
         QCoreApplication.processEvents()
 
+LEARNING_RATES = [1e-3, 3e-4, 1e-4, 3e-5, 1e-5]
+
+
 class OWImageTrainAndScore(widget.OWWidget):
     name = "Train ImageNet"
     description = "Train a Keras model on image data and show live performance."
@@ -59,6 +63,7 @@ class OWImageTrainAndScore(widget.OWWidget):
 
     batch_size = Setting(32)
     epochs = Setting(10)
+    lr_index = Setting(0)  # into LEARNING_RATES
     validation_percent = Setting(0)  # share of the images held out to score the model after each epoch
 
     def __init__(self):
@@ -90,6 +95,14 @@ class OWImageTrainAndScore(widget.OWWidget):
         self.epochs_spin.setToolTip("Number of epochs of training .")
         self.epochs_spin.valueChanged.connect(self._on_epochs_changed)
         self.controlArea.layout().addWidget(self.epochs_spin)        
+
+        self.controlArea.layout().addWidget(QLabel("Learning rate:"))
+        self.lr_box = QComboBox()
+        self.lr_box.addItems([f"{lr:g}" for lr in LEARNING_RATES])
+        self.lr_box.setToolTip("Size of each weight update. Lower it (for example to 0.0001) when fine-tuning a pretrained network.")
+        self.lr_box.setCurrentIndex(self.lr_index)
+        self.lr_box.currentIndexChanged.connect(self._on_lr_changed)
+        self.controlArea.layout().addWidget(self.lr_box)
 
         self.controlArea.layout().addWidget(QLabel("Validation split (%):"))
         self.validation_spin = QSpinBox()
@@ -172,6 +185,9 @@ class OWImageTrainAndScore(widget.OWWidget):
     def _on_epochs_changed(self, value):
         self.epochs = int(value)
 
+    def _on_lr_changed(self, index):
+        self.lr_index = index
+
     def _on_validation_changed(self, value):
         self.validation_percent = int(value)
 
@@ -232,7 +248,7 @@ class OWImageTrainAndScore(widget.OWWidget):
                        "Set the last Dense layer's units to the number of classes.")
             return
         self.error()
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=keras.optimizers.Adam(LEARNING_RATES[self.lr_index]), loss='categorical_crossentropy', metrics=['accuracy'])
 
         # Hold out a random, class-balanced share. (Keras's own validation_split takes the LAST rows, and image folders
         # are sorted by class, so it would hold out whole classes.)

@@ -85,3 +85,19 @@ class TestTrain(WidgetTest):
         with mock.patch.object(ow_train, "clone_model", lambda m: m):
             self.w.train()
         assert sorted(set(seen[0])) == [0, 1]
+
+
+class TestLearningRate(WidgetTest):
+    @pytest.fixture(autouse=True)
+    def _inject(self, image_table):
+        self.image_table = image_table
+
+    def test_learning_rate_reaches_optimizer(self):
+        w = self.create_widget(OWImageTrainAndScore)
+        w.lr_box.setCurrentIndex(2)
+        assert w.lr_index == 2
+        self.send_signal(w.Inputs.model, small_model((224, 224, 3)), widget=w)
+        w.epochs_spin.setValue(1)
+        self.send_signal(w.Inputs.data, self.image_table, widget=w)
+        model = self.get_output(w.Outputs.trained_model, widget=w)
+        assert abs(float(model.optimizer.learning_rate) - 1e-4) < 1e-9
